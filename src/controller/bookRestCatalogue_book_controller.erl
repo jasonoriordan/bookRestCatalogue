@@ -49,13 +49,12 @@ view('GET', [BookId]) ->
 
 %%  Book CREATE
 %%
-%% Create a new carrier based on the passed params eg. book/save?authorname=jk&bookname=hp
+%% Create a new book based on the passed params eg. book/save?authorname=jk&bookname=hp
 save('POST', []) ->
  AuthorName = Req:post_param("authorname"),
  BookName = Req:post_param("bookname"),
-  %% TODO fix logging
-  % error_logger:info_msg("POST-carrier/save/~s ~s request recieved~n",[CarrierName,CarrierType]),
- NewBook = carrier:new(id,AuthorName, BookName, calendar:universal_time(),calendar:universal_time()),
+
+ NewBook = book:new(id,AuthorName, BookName, calendar:universal_time(),calendar:universal_time()),
   % have record and return the newly created if ok or errors otherwise, in json format
  case NewBook:save() of
    {ok, SavedBook} ->
@@ -64,42 +63,41 @@ save('POST', []) ->
      {json, Errors}
  end.
 
-%% Carrier Update
+%% Book Update
 %%
 %% Note: can also update by populating id with an actual value and calling 'new'
 %%       UpdatedBook = book:new(BookName,AuthorName, calendar:universal_time(),calendar:universal_time()),
 %%   Updates the book based on the passed params eg. book/update?bookid=myid&bookname=cuckoo&authorname=jk
-%-update('PUT', []) ->
-%- BookId = Req:post_param("bookid"),
-%- BookName = Req:post_param("bookname"),
-%- AuthorName = Req:post_param("authorname"),
+update('PUT', []) ->
+BookId = Req:post_param("bookid"),
+BookName = Req:post_param("bookname"),
+AuthorName = Req:post_param("authorname"),
 
 
-  % TODO verify record was found
-%-Book = boss_db:find(BookId),
+Book = boss_db:find(BookId),
 
   % update via attribute setting (as we don't want to update create_timestamp)
-%-BookWithUpdatedName = Book:set(book_name,BookName),
-%-BookWithUpdatedAuthor = BookWithUpdatedName:set(author_name,AuthorName),
-%-BookWithUpdateTS = BookWithUpdatedAuthor:set(update_timestamp,calendar:universal_time()),
+BookWithUpdatedName = Book:set(book_name,BookName),
+BookWithUpdatedAuthor = BookWithUpdatedName:set(author_name,AuthorName),
+BookWithUpdateTS = BookWithUpdatedAuthor:set(update_timestamp,calendar:universal_time()),
 
-%-case BookWithUpdateTS:save() of
-%-  {ok, UpdatedBook} ->
-%-    {json, UpdatedBook};
-%-  {error, Errors} ->
-%-    {json, Errors}
-%-end.
+case BookWithUpdateTS:save() of
+  {ok, UpdatedBook} ->
+    {json, UpdatedBook};
+  {error, Errors} ->
+    {json, Errors}
+end.
 
 %%  Book DELETE
 %%
 %%   Delete the specified book from the system eg. book/delete/book-7
-%-delete('DELETE', [BookId]) ->
+delete('DELETE', [BookId]) ->
 
-%-boss_db:delete(BookId),
+boss_db:delete(BookId),
 
-%-case boss_db:counter(BookId) of
-%-  0 ->
-%-    {output,<<"{ \"Deleted Status\": \"Book Deleted\" }">>,[{"Content-Type","application/json"}]};
-%-  _Else ->
-%-    {output,<<"error">>,[{"Content-Type","application/json"}]}
-%-end.
+case boss_db:counter(BookId) of
+  0 ->
+    {output,<<"{ \"Deleted Status\": \"Book Deleted\" }">>,[{"Content-Type","application/json"}]};
+  _Else ->
+    {output,<<"error">>,[{"Content-Type","application/json"}]}
+end.
